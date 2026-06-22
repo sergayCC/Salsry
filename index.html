@@ -1,93 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>薪資即時計算器</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <main class="container">
-    <header class="hero">
-      <h1>薪資即時儀表板</h1>
-      <p>依台灣上班日規則（排除週六日與國定假日）每秒更新薪資估算。</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>薪資即時計算器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="hero">
+        <h1>薪資即時儀表板</h1>
+        <p>依台灣上班日規則（排除週六日與國定假日）每秒更新薪資估算。</p>
+      </header>
 
-    <section class="panel input-panel" aria-labelledby="input-title">
-      <h2 id="input-title">輸入設定</h2>
-      <div class="grid">
-        <label>
-          月薪（TWD）
-          <input id="monthlySalary" type="number" min="1" step="1" value="40000" />
-        </label>
-        <label>
-          每日工時
-          <input id="hoursPerDay" type="number" min="0.5" max="24" step="0.5" value="8" />
-        </label>
-        <label>
-          上班開始
-          <input id="startTime" type="time" value="09:00" />
-        </label>
-        <label>
-          上班結束
-          <input id="endTime" type="time" value="18:00" />
-        </label>
-      </div>
-      <div class="actions">
-        <button id="saveBtn" type="button">儲存設定</button>
-        <span id="statusMsg" class="status" role="status" aria-live="polite"></span>
-      </div>
-      <p id="errorMsg" class="error" aria-live="assertive"></p>
-    </section>
+      <section class="panel" aria-labelledby="day-progress-title">
+        <div class="progress-head">
+          <h2 id="day-progress-title">工作時段進度</h2>
+          <p id="dayProgressText" class="progress-value">-</p>
+        </div>
+        <div
+          class="progress-track"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-labelledby="day-progress-title"
+        >
+          <div id="dayProgressBar" class="progress-fill"></div>
+        </div>
+      </section>
 
-    <section class="panel" aria-labelledby="rate-title">
-      <h2 id="rate-title">即時薪資速率</h2>
-      <div class="cards">
-        <article class="card">
-          <h3>秒薪</h3>
-          <p id="perSecond">-</p>
-        </article>
-        <article class="card">
-          <h3>分薪</h3>
-          <p id="perMinute">-</p>
-        </article>
-        <article class="card">
-          <h3>時薪</h3>
-          <p id="perHour">-</p>
-        </article>
-        <article class="card">
-          <h3>日薪</h3>
-          <p id="perDay">-</p>
-        </article>
-      </div>
-    </section>
+      <section class="panel" aria-labelledby="rate-title">
+        <h2 id="rate-title">即時薪資速率</h2>
+        <div class="cards">
+          <article class="card">
+            <h3>秒薪</h3>
+            <p id="perSecond">-</p>
+          </article>
+          <article class="card">
+            <h3>分薪</h3>
+            <p id="perMinute">-</p>
+          </article>
+          <article class="card">
+            <h3>時薪</h3>
+            <p id="perHour">-</p>
+          </article>
+          <article class="card">
+            <h3>日薪</h3>
+            <p id="perDay">-</p>
+          </article>
+        </div>
+      </section>
 
-    <section class="panel" aria-labelledby="earned-title">
-      <h2 id="earned-title">累積薪資</h2>
-      <div class="cards">
-        <article class="card">
-          <h3>今日已賺</h3>
-          <p id="earnedToday">-</p>
-        </article>
-        <article class="card">
-          <h3>當月已賺</h3>
-          <p id="earnedMonth">-</p>
-        </article>
-        <article class="card">
-          <h3>當年已賺</h3>
-          <p id="earnedYear">-</p>
-        </article>
-      </div>
-      <div class="meta">
-        <p id="workdayInfo">-</p>
-        <p id="clockInfo">-</p>
-      </div>
-    </section>
-  </main>
+      <section class="panel" aria-labelledby="earned-title">
+        <h2 id="earned-title">累積薪資</h2>
+        <div class="cards">
+          <article class="card">
+            <h3>今日已賺</h3>
+            <p id="earnedToday">-</p>
+          </article>
+          <article class="card">
+            <h3>當月已賺</h3>
+            <p id="earnedMonth">-</p>
+          </article>
+          <article class="card">
+            <h3>當年已賺</h3>
+            <p id="earnedYear">-</p>
+          </article>
+        </div>
+        <div class="meta">
+          <p id="workdayInfo">-</p>
+          <p id="clockInfo">-</p>
+        </div>
+      </section>
 
-  <script src="app.js" type="module"></script>
-</body>
+      <section class="panel input-panel" aria-labelledby="input-title">
+        <h2 id="input-title">輸入設定</h2>
+        <div class="grid">
+          <label>
+            月薪（TWD）
+            <input
+              id="monthlySalary"
+              type="number"
+              min="1"
+              step="1"
+              value="40000"
+            />
+          </label>
+          <label>
+            每日工時
+            <input
+              id="hoursPerDay"
+              type="number"
+              min="0.5"
+              max="24"
+              step="0.5"
+              value="8"
+            />
+          </label>
+          <label>
+            上班開始
+            <input id="startTime" type="time" value="09:00" />
+          </label>
+          <label>
+            上班結束
+            <input id="endTime" type="time" value="18:00" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="saveBtn" type="button">儲存設定</button>
+          <span
+            id="statusMsg"
+            class="status"
+            role="status"
+            aria-live="polite"
+          ></span>
+        </div>
+        <p id="errorMsg" class="error" aria-live="assertive"></p>
+      </section>
+    </main>
+
+    <script src="app.js" type="module"></script>
+  </body>
 </html>
