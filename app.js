@@ -10,6 +10,8 @@ const elements = {
   saveBtn: document.getElementById("saveBtn"),
   statusMsg: document.getElementById("statusMsg"),
   errorMsg: document.getElementById("errorMsg"),
+  dayProgressBar: document.getElementById("dayProgressBar"),
+  dayProgressText: document.getElementById("dayProgressText"),
   perSecond: document.getElementById("perSecond"),
   perMinute: document.getElementById("perMinute"),
   perHour: document.getElementById("perHour"),
@@ -18,20 +20,20 @@ const elements = {
   earnedMonth: document.getElementById("earnedMonth"),
   earnedYear: document.getElementById("earnedYear"),
   workdayInfo: document.getElementById("workdayInfo"),
-  clockInfo: document.getElementById("clockInfo")
+  clockInfo: document.getElementById("clockInfo"),
 };
 
 const currency = new Intl.NumberFormat("zh-TW", {
   style: "currency",
   currency: "TWD",
-  maximumFractionDigits: 2
+  maximumFractionDigits: 2,
 });
 
 const fineCurrency = new Intl.NumberFormat("zh-TW", {
   style: "currency",
   currency: "TWD",
   minimumFractionDigits: 4,
-  maximumFractionDigits: 6
+  maximumFractionDigits: 6,
 });
 
 const clockFormatter = new Intl.DateTimeFormat("zh-TW", {
@@ -43,7 +45,7 @@ const clockFormatter = new Intl.DateTimeFormat("zh-TW", {
   hour: "2-digit",
   minute: "2-digit",
   second: "2-digit",
-  weekday: "short"
+  weekday: "short",
 });
 
 let holidayData = null;
@@ -69,7 +71,12 @@ async function init() {
 }
 
 function bindEvents() {
-  [elements.monthlySalary, elements.hoursPerDay, elements.startTime, elements.endTime].forEach((node) => {
+  [
+    elements.monthlySalary,
+    elements.hoursPerDay,
+    elements.startTime,
+    elements.endTime,
+  ].forEach((node) => {
     node.addEventListener("input", () => {
       elements.statusMsg.textContent = "";
       calculateAndRender();
@@ -117,10 +124,14 @@ function loadSettings() {
 
 function validateHolidayData(data) {
   if (!data || typeof data !== "object") {
-    throw new Error("假日資料格式錯誤：根節點必須是物件。請參考 README 的 schema。");
+    throw new Error(
+      "假日資料格式錯誤：根節點必須是物件。請參考 README 的 schema。",
+    );
   }
 
-  const years = Object.keys(data).filter((key) => /^\d{4}$/.test(key)).sort();
+  const years = Object.keys(data)
+    .filter((key) => /^\d{4}$/.test(key))
+    .sort();
   if (years.length === 0) {
     throw new Error("假日資料至少要有一個年份鍵，例如 2026。 ");
   }
@@ -198,8 +209,8 @@ function getSettings() {
       monthlySalary,
       hoursPerDay,
       startTime,
-      endTime
-    }
+      endTime,
+    },
   };
 }
 
@@ -215,6 +226,11 @@ function calculateAndRender() {
 
     const now = getNowInTaipei();
     const data = calculateEarnings(settings.value, now);
+    const workProgress = getWorkProgressRatio(
+      settings.value.startTime,
+      settings.value.endTime,
+      now,
+    );
 
     elements.perSecond.textContent = fineCurrency.format(data.perSecond);
     elements.perMinute.textContent = fineCurrency.format(data.perMinute);
@@ -225,9 +241,14 @@ function calculateAndRender() {
     elements.earnedMonth.textContent = currency.format(data.earnedMonth);
     elements.earnedYear.textContent = currency.format(data.earnedYear);
 
-    elements.workdayInfo.textContent =
-      `本月工作日 ${data.monthWorkdays} 天，已完成 ${data.completedWorkdaysInMonth} 天`;
+    elements.workdayInfo.textContent = `本月工作日 ${data.monthWorkdays} 天，已完成 ${data.completedWorkdaysInMonth} 天`;
     elements.clockInfo.textContent = `台灣時間：${clockFormatter.format(now)}`;
+    elements.dayProgressBar.style.width = `${(workProgress * 100).toFixed(2)}%`;
+    elements.dayProgressBar.parentElement.setAttribute(
+      "aria-valuenow",
+      String(Math.round(workProgress * 100)),
+    );
+    elements.dayProgressText.textContent = `${(workProgress * 100).toFixed(2)}%`;
   } catch (error) {
     showError(error.message || "計算失敗，請檢查設定與假日資料");
     renderEmpty();
@@ -252,7 +273,11 @@ function calculateEarnings(settings, now) {
   const todayIso = formatIsoDate(now);
   const isTodayWorkday = isWorkday(todayIso);
 
-  const completedWorkdaysInMonth = countCompletedWorkdaysInMonth(year, month, now.getDate());
+  const completedWorkdaysInMonth = countCompletedWorkdaysInMonth(
+    year,
+    month,
+    now.getDate(),
+  );
 
   const todayProgress = isTodayWorkday
     ? getWorkProgressRatio(settings.startTime, settings.endTime, now)
@@ -279,7 +304,7 @@ function calculateEarnings(settings, now) {
     earnedMonth,
     earnedYear,
     monthWorkdays,
-    completedWorkdaysInMonth
+    completedWorkdaysInMonth,
   };
 }
 
@@ -310,7 +335,8 @@ function countCompletedWorkdaysInMonth(year, month, date) {
 function getWorkProgressRatio(startTime, endTime, now) {
   const startMins = toMinutes(startTime);
   const endMins = toMinutes(endTime);
-  const currentMins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  const currentMins =
+    now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
 
   if (currentMins <= startMins) {
     return 0;
@@ -347,7 +373,7 @@ function getNowInTaipei() {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false
+    hour12: false,
   }).formatToParts(new Date());
 
   const map = {};
@@ -363,7 +389,7 @@ function getNowInTaipei() {
     Number(map.day),
     Number(map.hour),
     Number(map.minute),
-    Number(map.second)
+    Number(map.second),
   );
 }
 
@@ -406,9 +432,12 @@ function renderEmpty() {
     elements.perDay,
     elements.earnedToday,
     elements.earnedMonth,
-    elements.earnedYear
+    elements.earnedYear,
   ].forEach((el) => {
     el.textContent = "-";
   });
   elements.workdayInfo.textContent = "-";
+  elements.dayProgressBar.style.width = "0%";
+  elements.dayProgressBar.parentElement.setAttribute("aria-valuenow", "0");
+  elements.dayProgressText.textContent = "-";
 }
